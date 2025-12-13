@@ -15,8 +15,8 @@
 	const base = src.replace(/\.[^.]+$/, '');
 
 	// Use only the smallest generated size in srcset
-	const avifSrcset = `${base}.320.avif 320w`;
-	const webpSrcset = `${base}.640.webp 6400w`;
+	//	const avifSrcset = `${base}.320.avif 320w`;
+	const webpSrcset = `${base}.640.webp 640w`;
 
 	// Fallback JPG – we only have 640.jpg from the script, which is fine for a tiny portrait
 	const jpgFallback = `${base}.640.jpg`;
@@ -35,4 +35,3 @@
 		margin-top: 0;
 	}
 </style>
-

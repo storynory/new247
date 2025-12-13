@@ -25,20 +25,14 @@
 </script>
 
 <picture class={className}>
-	<source srcset={avifSrcset} sizes={sizes} type="image/avif">
-	<source srcset={webpSrcset} sizes={sizes} type="image/webp">
-	<img
-		src={jpgFallback}
-		alt={alt}
-		loading={loading}
-		decoding="async"
-		sizes={sizes}
-	>
+	<!--	<source srcset={avifSrcset} sizes={sizes} type="image/avif"> -->
+	<source srcset={webpSrcset} {sizes} type="image/webp" />
+	<img src={jpgFallback} {alt} {loading} decoding="async" {sizes} />
 </picture>
 
 <style>
-img {
-    margin-top: 0;
-}
-
+	img {
+		margin-top: 0;
+	}
 </style>
+

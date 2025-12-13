@@ -1,7 +1,7 @@
 <script lang="ts">
 	// AVIF/WEBP + JPG(640) responsive picture
 
-		let {
+	let {
 		src = '',
 		alt = '',
 		loading = 'lazy',
@@ -36,33 +36,24 @@
 	const jpgFallback = `${base}.640.jpg`;
 
 	// Safe default; you can override with `sizes` prop
-	const defaultSizes =
-		'(min-width: 1200px) 25vw, (min-width: 768px) 33vw, 100vw';
+	const defaultSizes = '(min-width: 1200px) 25vw, (min-width: 768px) 33vw, 100vw';
 </script>
 
 <picture class={className}>
-	<source
-		srcset={avifSrcset}
-		sizes={sizes ?? defaultSizes}
-		type="image/avif"
-	>
-   
-	<source
-		srcset={webpSrcset}
-		sizes={sizes ?? defaultSizes}
-		type="image/webp"
-	> 
+	<source srcset={avifSrcset} sizes={sizes ?? defaultSizes} type="image/avif" />
+
+	<source srcset={webpSrcset} sizes={sizes ?? defaultSizes} type="image/webp" />
 	<img
 		class={className}
 		src={jpgFallback}
-		alt={alt}
+		{alt}
 		loading={loading ?? undefined}
 		fetchpriority={fetchPriority}
 		decoding="async"
 		width="640"
 		height="360"
 		sizes={sizes ?? defaultSizes}
-	>
+	/>
 </picture>
 
 <style>

@@ -1,0 +1,164 @@
+backend:
+  name: github
+  repo: storynory/247-content
+  branch: main
+
+logo:
+  src: http://static.libsyn.com/p/assets/d/3/3/f/d33f2d47715b7bbe/itunes.jpg
+  show_in_header: true
+
+site_url: "https://philosophy247.org/"
+
+media_folder: "content/uploads"
+public_folder: "/uploads"
+
+collections:
+  # ================= PEOPLE =================
+  - name: "people"
+    label: "People"
+    icon: person_outline
+    label_singular: "Person"
+    description: "Profiles of interview guests and contributors."
+    folder: "content/people"
+    create: true
+    delete: false
+    hide: false
+    summary: "{{name}}"
+    fields:
+      - name: "name"
+        label: "Name"
+        widget: "string"
+      - name: "bio"
+        label: "Bio"
+        widget: "text"
+        required: false
+      - name: "portrait"
+        label: "Portrait"
+        widget: "image"
+        required: false
+
+      # Books (repeatable)
+      - label: "Books"
+        name: "books"
+        widget: "list"
+        collapsed: true
+        required: false
+        summary: "{{fields.title}} — {{fields.author}}"
+        hint: "Add books this person has written or recommends."
+        fields:
+          - { label: "Title", name: "title", widget: "string", required: true }
+          - {
+              label: "Author(s)",
+              name: "author",
+              widget: "string",
+              required: false,
+            }
+          - {
+              label: "Publisher and Year",
+              name: "publisher",
+              widget: "string",
+              required: false,
+            }
+          - name: "cover"
+            label: "Book Cover Image"
+            widget: "image"
+            required: false
+
+          - label: "Amazon"
+            name: "amazon"
+            widget: "string"
+            hint: "First part of amazon url eg https://www.amazon.co.uk/Undercover-Robot-First-Year-Human-ebook/dp/B0874DTR2C/ (it will auto-make UK and USA links)"
+            required: false
+          - {
+              label: "Summary",
+              name: "summary",
+              widget: "text",
+              hint: "Short description",
+              required: false,
+            }
+
+  - name: "podcasts"
+    label: "Podcasts"
+    icon: mic
+    label_singular: "Episode"
+    description: "Podcast episodes with metadata and linked interviewees."
+    folder: "content/podcasts"
+    create: true
+    hide: false
+    delete: true
+    slug: "{{slug}}"
+    summary: "{{title}} — {{with | join(', ')}}"
+    fields:
+      - name: "title"
+        label: "Title"
+        widget: "string"
+      - name: "description"
+        label: "Description"
+        widget: "markdown"
+        required: false
+      - name: "body"
+        label: "Body"
+        widget: "markdown"
+        required: false
+      - name: "date"
+        label: "Publish Date"
+        widget: "datetime"
+        format: "YYYY-MM-DDTHH:mm:ssZ"
+        required: false
+      - name: "thumb"
+        label: "Episode Artwork"
+        widget: "image"
+        required: false
+      - name: "mp3"
+        label: "MP3 File"
+        widget: "string"
+        required: false
+      - name: "duration"
+        label: "Duration"
+        widget: "string"
+        required: false
+      - name: "length"
+        label: "File Size"
+        widget: "string"
+        required: false
+      - name: "with"
+        label: "Interviewees"
+        widget: "relation"
+        collection: "people"
+        multiple: true
+        search_fields: ["name"]
+        value_field: "name"
+        display_fields: ["name"]
+        required: false
+
+    # ================= STATIC PAGES =================
+  - name: "pages"
+    label: "Pages"
+    label_singular: "Page"
+    description: "Standalone site pages (about, contact, etc.)"
+    folder: "content/pages"
+    create: true
+    delete: true
+    hide: false
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    fields:
+      - name: "title"
+        label: "Title"
+        widget: "string"
+        required: true
+
+      - name: "featuredImage"
+        label: "Featured Image"
+        widget: "relation"
+        collection: "images"
+        multiple: false
+        search_fields: ["title", "caption", "alt"]
+        value_field: "filename"
+        display_fields: ["title"]
+        required: false
+
+      - name: "body"
+        label: "Body"
+        widget: "markdown"
+        required: false

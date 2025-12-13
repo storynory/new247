@@ -1,9 +1,9 @@
 <script lang="ts">
 	// AVIF/WEBP + JPG(640) responsive picture
-   // gets sizes from meta data created by image pipeline scripts/process-images.mjs
-   // adjust settings per mime type ... also adjust sizes but must match pipeline
-   // This is the best one to use for static projects as it gets the width and height sizes
-   /* example usage for grid layout to make sure it does not pick large image
+	// gets sizes from meta data created by image pipeline scripts/process-images.mjs
+	// adjust settings per mime type ... also adjust sizes but must match pipeline
+	// This is the best one to use for static projects as it gets the width and height sizes
+	/* example usage for grid layout to make sure it does not pick large image
 
 		<Picture
 						src={podcast.thumb}
@@ -41,7 +41,7 @@ Then keep using maxWidth={640} for card layouts so mobile never goes above 640, 
 
 
    */
-	
+
 	let {
 		src = '',
 		alt = '',
@@ -66,10 +66,7 @@ Then keep using maxWidth={640} for card layouts so mobile never goes above 640, 
 	// @ts-ignore
 	import imageMeta from '$lib/image-sizes.json';
 
-	type ImageMeta = Record<
-		string,
-		{ width: number | null; height: number | null }
-	>;
+	type ImageMeta = Record<string, { width: number | null; height: number | null }>;
 
 	const metaMap = imageMeta as ImageMeta;
 
@@ -91,43 +88,34 @@ Then keep using maxWidth={640} for card layouts so mobile never goes above 640, 
 	// Safety net: if someone passed maxWidth < 320, fall back to smallest
 	const effectiveWidths = widths.length > 0 ? widths : [ALL_WIDTHS[0]];
 
-	const avifSrcset = effectiveWidths
-		.map((w) => `${base}.${w}.avif ${w}w`)
-		.join(', ');
+	const avifSrcset = effectiveWidths.map((w) => `${base}.${w}.avif ${w}w`).join(', ');
 
-	const webpSrcset = effectiveWidths
-		.map((w) => `${base}.${w}.webp ${w}w`)
-		.join(', ');
+	const webpSrcset = effectiveWidths.map((w) => `${base}.${w}.webp ${w}w`).join(', ');
 
 	// Fallback JPG (only 640 exists from your script)
 	const jpgFallback = `${base}.640.jpg`;
 
 	// Safe default; you can override with `sizes` prop
-	const defaultSizes =
-		'(min-width: 1200px) 25vw, (min-width: 768px) 33vw, 100vw';
+	const defaultSizes = '(min-width: 1200px) 25vw, (min-width: 768px) 33vw, 100vw';
 </script>
 
 <picture class={className}>
-	<source
+	<!--	<source
 		srcset={avifSrcset}
 		sizes={sizes ?? defaultSizes}
 		type="image/avif"
-	>
-	<source
-		srcset={webpSrcset}
-		sizes={sizes ?? defaultSizes}
-		type="image/webp"
-	>
+	>  -->
+	<source srcset={webpSrcset} sizes={sizes ?? defaultSizes} type="image/webp" />
 	<img
 		src={jpgFallback}
-		alt={alt}
+		{alt}
 		loading={loading ?? undefined}
 		fetchpriority={fetchPriority}
 		decoding="async"
 		width={intrinsicWidth}
 		height={intrinsicHeight}
 		sizes={sizes ?? defaultSizes}
-	>
+	/>
 </picture>
 
 <style>

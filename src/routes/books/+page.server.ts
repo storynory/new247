@@ -1,9 +1,9 @@
-import { getAllBooks } from '$lib/server/content';
+import { getAllPeople } from '$lib/server/content';
 
 export function load() {
-	const books = getAllBooks();
+	const people = getAllPeople();
 
 	return {
-		books
+		people
 	};
 }

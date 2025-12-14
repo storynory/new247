@@ -1,7 +1,8 @@
 <nav class="txt-right -p bg-white">
 	<a href="/">Home</a> /
 	<a href="/pages/about/">About / </a>
-	<a href="/search/">Search</a>
+	<a href="/search/">Search / </a>
+	<a href="/books/">Books</a>
 </nav>
 
 <header class="h1 bg-prime txt-center txt-light">
@@ -107,4 +108,3 @@
 		}
 	}
 </style>
-

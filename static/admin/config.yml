@@ -54,12 +54,16 @@ collections:
               widget: "string",
               required: false,
             }
-          - {
-              label: "Publisher and Year",
-              name: "publisher",
-              widget: "string",
-              required: false,
-            }
+          - name: "publisher"
+            label: "publisher"
+            widget: "string"
+            required: false
+
+          - name: "date"
+            label: "Date Published"
+            widget: "datetime"
+            required: false
+
           - name: "cover"
             label: "Book Cover Image"
             widget: "image"
@@ -151,11 +155,9 @@ collections:
 
       - name: "featuredImage"
         label: "Featured Image"
-        widget: "relation"
-        collection: "images"
-        multiple: false
+        widget: "images"
         search_fields: ["title", "caption", "alt"]
-        value_field: "filename"
+        value_field: "flename"
         display_fields: ["title"]
         required: false
 

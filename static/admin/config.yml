@@ -38,7 +38,7 @@ collections:
         widget: "image"
         required: false
 
-      # Books (repeatable)
+        # Books (repeatable)
       - label: "Books"
         name: "books"
         widget: "list"

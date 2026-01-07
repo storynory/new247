@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Picture from '$lib/components/PictureWithSizes.svelte';
+	import Picture from '$lib/components/PictureGrid.svelte';
 
 	// front page
 	let { data } = $props();
-	let podcasts = data.podcasts;
+	let podcasts = $derived(data.podcasts);
 	let visible = $state(12);
 
 	function loadMore() {
@@ -23,15 +23,7 @@
 		<li class="card bg-white">
 			{#if podcast.thumb}
 				<a href={`/podcasts/${podcast.slug}`}>
-					<Picture
-						src={podcast.thumb}
-						alt={podcast.title}
-						loading={i === 0 ? 'eager' : 'lazy'}
-						fetchPriority={i === 0 ? 'high' : 'auto'}
-						sizes="(min-width: 1200px) 25vw, (min-width: 768px) 33vw, 100vw"
-						maxWidth={640}
-						class="card-image"
-					></Picture>
+					<Picture src={podcast.thumb} alt={podcast.title} priority={i === 0} />
 				</a>
 			{/if}
 

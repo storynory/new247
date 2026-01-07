@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Picture from '$lib/components/PictureWithSizes.svelte';
+	import Picture from '$lib/components/Picture.svelte';
 	import { marked } from 'marked';
 	let data = $props();
 	let pg = data.data.page;
@@ -14,8 +14,8 @@
 			<Picture
 				src={pg.featuredImage}
 				alt={`Artwork for ${pg.featuredImage.title}`}
-				loading="eager"
-				fetchPriority="high"
+				priority={true}
+				variant="hero"
 				class="episode-art"
 			></Picture>
 		{/if}

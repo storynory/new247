@@ -5,7 +5,8 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "vite build",
+		"images": "node scripts/process-images.mjs",
+		"build": "npm run images && vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -17,6 +18,7 @@
 		"@eslint/compat": "^1.4.0",
 		"@eslint/js": "^9.39.1",
 		"@sveltejs/adapter-auto": "^7.0.0",
+		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.48.5",
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
 		"@types/node": "^22",

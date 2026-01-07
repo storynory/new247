@@ -14,21 +14,14 @@
 
 	const base = src.replace(/\.[^.]+$/, '');
 
-	// Use only the smallest generated size in srcset
-	//	const avifSrcset = `${base}.320.avif 320w`;
+	// WebP only
+	const webpSrc = `${base}.640.webp`;
 	const webpSrcset = `${base}.640.webp 640w`;
-
-	// Fallback JPG – we only have 640.jpg from the script, which is fine for a tiny portrait
-	const jpgFallback = `${base}.640.jpg`;
 
 	const sizes = '300px'; // small portrait; tweak to taste
 </script>
 
-<picture class={className}>
-	<!--	<source srcset={avifSrcset} sizes={sizes} type="image/avif"> -->
-	<source srcset={webpSrcset} {sizes} type="image/webp" />
-	<img src={jpgFallback} {alt} {loading} decoding="async" {sizes} />
-</picture>
+<img class={className} src={webpSrc} srcset={webpSrcset} {sizes} {alt} {loading} decoding="async" />
 
 <style>
 	img {

@@ -44,8 +44,9 @@ a.btn:hover {
 }
 
 .btn:hover {
-	background-color: #0056b3;
+	background-color: indigo;
 	border-color: #0056b3;
+	color: white;
 }
 
 button:disabled {
@@ -56,22 +57,22 @@ button:disabled {
 }
 
 a:hover {
-    text-decoration: underline;
+	text-decoration: underline;
 }
 
 a.btn:hover {
-    text-decoration: none;
+	text-decoration: none;
 }
 
 a.btn.bg-butter {
-  background-color: var(--butter);
-  color: #333;
- text-decoration: none;
- border: 3px solid transparent;
+	background-color: var(--butter);
+	color: #333;
+	text-decoration: none;
+	border: 3px solid transparent;
 }
 
 a.btn.bg-butter:hover {
-    background-color: var(--frog);
-     border: 3px solid white;
-
+	background-color: var(--frog);
+	border: 3px solid white;
 }
+

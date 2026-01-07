@@ -1,39 +1,21 @@
 <script lang="ts">
+	import Picture from '$lib/components/PictureThumb.svelte';
 	import Fuse from 'fuse.js';
-
-	// -----------------------------
-	// Types
-	// -----------------------------
-	type PersonIndexItem = {
-		type: 'person';
-		slug: string;
-		name: string;
-		bio?: string;
-	};
-
-	type PodcastIndexItem = {
-		type: 'podcast';
-		slug: string;
-		title: string;
-		description?: string;
-		with?: string[];
-		date?: string;
-        thumb?: string;
-	};
-
-	type SearchItem = PersonIndexItem | PodcastIndexItem;
+	import IconSearch from '$lib/icons/IconSearch.svelte';
+	import type { SearchResult } from '$lib/types';
 
 	// -----------------------------
 	// Local state
 	// -----------------------------
 	let query = $state('');
-	let results = $state<SearchItem[]>([]);
-	let allItems = $state<SearchItem[]>([]);          // <- keep original list
-	let index = $state<Fuse<SearchItem> | null>(null);
 	let loading = $state(true);
 	let errorMessage = $state('');
-
+	let results: SearchResult[] = $state([]);
+	let allItems: SearchResult[] = $state([]);
+	let index = $state<Fuse<SearchResult> | null>(null);
+	let inputEl = $state<HTMLInputElement | null>(null);
 	// -----------------------------
+
 	// Load static search index.json
 	// -----------------------------
 	$effect(() => {
@@ -50,16 +32,14 @@
 
 				const data = await res.json();
 
-				const items: SearchItem[] = [
-					...(data.people ?? []),
-					...(data.podcasts ?? [])
-				];
+				const items: SearchResult[] = [...(data.people ?? []), ...(data.podcasts ?? [])];
 
 				allItems = items; // <- keep full list
 
 				index = new Fuse(items, {
 					keys: ['name', 'bio', 'title', 'description', 'with'],
-					threshold: 0.3
+					threshold: 0.3,
+					distance: 400
 				});
 
 				// Show all items initially
@@ -87,62 +67,173 @@
 			results = index.search(trimmed).map((r) => r.item);
 		}
 	});
+
+	function onKeydown(e: KeyboardEvent) {
+		// Ignore if typing in another input/textarea
+		if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+		if (e.key === '/') {
+			e.preventDefault();
+			inputEl?.focus();
+		}
+
+		if (e.key === 'Escape') {
+			inputEl?.blur();
+		}
+	}
 </script>
 
-<h1 class="txt-center">Search</h1>
-
+<svelte:window onkeydown={onKeydown} />
 {#if errorMessage}
 	<p>{errorMessage}</p>
+{:else if loading}
+	<p>Loading search index…</p>
 {:else}
-	{#if loading}
-		<p>Loading search index…</p>
+	<div class="search">
+		<span class="search-icon">
+			<IconSearch></IconSearch>
+		</span>
+
+		<input
+			bind:this={inputEl}
+			type="search"
+			class="search-input"
+			placeholder="Search…"
+			bind:value={query}
+			autocomplete="off"
+		/>
+	</div>
+
+	{#if results.length === 0}
+		<p>No results found.</p>
 	{:else}
-		<form class="form -m -p p-lg">
-			<input
-				type="search"
-                class="input -p -m p-lrg"
-				placeholder="Search people & podcasts…"
-				bind:value={query}
-				autocomplete="off"
-			>
-	</form>
-
-		{#if results.length === 0}
-			<p>No results found.</p>
-		{:else}
-        <section class="-m -p">
-			<ul>
+		<section class="-m -p">
+			<ul class="search-results">
 				{#each results as item}
-					<li>
+					<li class="search-row">
 						{#if item.type === 'person'}
-							<a href={`/people/${item.slug}`}>
-								<strong>Person — {item.name}</strong>
-							</a>
-							{#if item.bio}
-								<div>{item.bio}</div>
-							{/if}
+							<a class="search-link" href={`/people/${item.slug}`}>
+								<span class="search-icon">👤</span>
 
-						{:else if item.type === 'podcast'}
-                        <article class="card -p">
-							<a href={`/podcasts/${item.slug}`}>
-								<h2>Podcast — {item.title}</h2>
+								<span class="search-text">
+									<strong>{item.name}</strong>
+									{#if item.bio}
+										<span class="snippet">{item.bio}</span>
+									{/if}
+								</span>
 							</a>
-							{#if item.with && item.with.length > 0}
-								<div>With {item.with.join(', ')}</div>
-							{/if}
-                            {#if item.thumb}
-								 <img src={item.thumb} alt="{item.title}" width="640" height="300"/>
-							{/if}
-							{#if item.description}
-								<div>{item.description}</div>
-							{/if}
-                            </article>
+						{:else if item.type === 'podcast'}
+							<a class="search-link" href={`/podcasts/${item.slug}`}>
+								<span class="search-thumb">
+									{#if item.thumb}
+										<Picture src={item.thumb} alt={item.title} />
+									{:else}
+										🎧
+									{/if}
+								</span>
+
+								<span class="search-text">
+									<strong>{item.title}</strong>
+
+									{#if item.with?.length}
+										<span class="meta">
+											With {item.with.join(', ')}
+										</span>
+									{/if}
+
+									{#if item.description}
+										<span class="snippet">{item.description}</span>
+									{/if}
+								</span>
+							</a>
 						{/if}
-                        
 					</li>
 				{/each}
 			</ul>
-            </section>
-		{/if}
+		</section>
 	{/if}
 {/if}
+
+<style>
+	.search {
+		position: relative;
+		width: 100%;
+	}
+
+	.search-icon {
+		position: absolute;
+		left: 0.75rem;
+		top: 50%;
+		transform: translateY(-50%);
+		color: #777;
+		pointer-events: none;
+		display: flex;
+		align-items: center;
+	}
+
+	.search-input {
+		width: 100%;
+		padding: 0.5em;
+		padding-left: 2.5em;
+		border: 1px solid gray;
+		border-radius: 3px;
+	}
+
+	.search-input::placeholder {
+		color: #333;
+	}
+
+	.search-results {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.search-row {
+		border-bottom: 1px solid #eee;
+	}
+
+	.search-link {
+		display: flex;
+		gap: 0.75rem;
+		padding: 0.75rem 0;
+		text-decoration: none;
+	}
+
+	.search-link:hover strong {
+		text-decoration: underline;
+	}
+
+	.search-icon,
+	.search-thumb {
+		flex-shrink: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.search-text {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.meta {
+		font-size: 0.85em;
+		color: #666;
+	}
+
+	.snippet {
+		font-size: 0.9em;
+		color: #444;
+	}
+
+	@media (max-width: 500px) {
+		li {
+			padding-right: 1em;
+		}
+		.search-thumb {
+			max-width: 200px;
+		}
+	}
+</style>

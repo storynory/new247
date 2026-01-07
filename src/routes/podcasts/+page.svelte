@@ -1,6 +1,6 @@
 <script lang="ts">
 	let { data } = $props();
-	let podcasts = data.podcasts;
+	let podcasts = $derived(data.podcasts);
 	// sorted list (reactive, but does NOT mutate the original array)
 	let sorted = $derived([...podcasts].sort((a, b) => a.title.localeCompare(b.title)));
 </script>

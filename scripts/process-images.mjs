@@ -1,69 +1,13 @@
-// scripts/process-images.mjs
 import fs from 'node:fs/promises';
-import { watch as fsWatch } from 'node:fs';
 import path from 'node:path';
-import sharp from 'sharp';
 import crypto from 'node:crypto';
+import sharp from 'sharp';
 
-// ----------------------------------------------------
-// CONFIG – tweak these and almost nothing else
-// ---------------------------------------------------
-const CONFIG = {
-	// Where original uploads live (Sveltia static repo)
-	SRC: './content/uploads',
+const CONFIG_PATH = path.resolve('src/lib/images/config.json');
 
-	// Where processed images go (Svelte app static)
-	OUT: './static/uploads',
-
-	// Input extensions we accept
-	INPUT_EXTS: new Set(['.jpg', '.jpeg', '.png', '.webp']),
-
-	// Responsive widths
-	SIZES: [320, 640, 960],
-
-	// Per-format settings
-	FORMATS: {
-		avif: {
-			enabled: false,
-			sizes: [320, 640, 960], // you can trim if needed
-			options: { quality: 70 } // AVIF can usually be a bit lower
-		},
-		webp: {
-			enabled: true,
-			sizes: [320, 640, 960],
-			options: { quality: 80 }
-		},
-		jpg: {
-			enabled: true,
-			sizes: [640], // only one fallback size
-			options: { quality: 82, mozjpeg: true }
-		}
-	},
-
-	// Cache + metadata
-	CACHE_FILE: '.image-cache.json',
-	META_FILE: './src/lib/image-sizes.json' // intrinsic sizes for Svelte
-};
-// ----------------------------------------------------
-// END CONFIG
-// ----------------------------------------------------
-
-const { SRC, OUT, INPUT_EXTS, SIZES, FORMATS, CACHE_FILE, META_FILE } = CONFIG;
-
-// load existing cache (hashes)
-let cache = {};
-try {
-	cache = JSON.parse(await fs.readFile(CACHE_FILE, 'utf8'));
-} catch {
-	cache = {};
-}
-
-// load existing image metadata (if any)
-let metaMap = {};
-try {
-	metaMap = JSON.parse(await fs.readFile(META_FILE, 'utf8'));
-} catch {
-	metaMap = {};
+async function loadConfig() {
+	const raw = await fs.readFile(CONFIG_PATH, 'utf8');
+	return JSON.parse(raw);
 }
 
 function sha1(buf) {
@@ -71,13 +15,17 @@ function sha1(buf) {
 }
 
 async function* walk(dir) {
-	for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+	let entries = [];
+	try {
+		entries = await fs.readdir(dir, { withFileTypes: true });
+	} catch {
+		return;
+	}
+
+	for (const entry of entries) {
 		const full = path.join(dir, entry.name);
-		if (entry.isDirectory()) {
-			yield* walk(full);
-		} else {
-			yield full;
-		}
+		if (entry.isDirectory()) yield* walk(full);
+		else yield full;
 	}
 }
 
@@ -85,120 +33,156 @@ function stripExt(file) {
 	return file.replace(/\.[^.]+$/, '');
 }
 
-function outPath(base, width, ext) {
-	const name = stripExt(base);
-	return path.join(OUT, `${name}.${width}.${ext}`);
+function normaliseSlashes(p) {
+	return p.replace(/\\/g, '/');
 }
 
-let built = 0;
-let skipped = 0;
+function makeOutPath(outDir, rel, width, ext) {
+	const name = stripExt(rel);
+	return path.join(outDir, `${name}.${width}.${ext}`);
+}
 
-async function processOne(file) {
-	const rel = path.relative(SRC, file);
-	const buf = await fs.readFile(file);
-	const digest = sha1(buf);
+async function fileExists(p) {
+	try {
+		await fs.stat(p);
+		return true;
+	} catch {
+		return false;
+	}
+}
 
-	// skip if hash hasn't changed
-	if (cache[rel] === digest) {
-		skipped++;
-		return;
+async function main() {
+	const cfg = await loadConfig();
+
+	const SRC = cfg.srcDir ?? './uploads';
+	const OUT = cfg.outDir ?? './static/uploads';
+	const INPUT_EXTS = new Set(cfg.inputExts ?? ['.jpg', '.jpeg', '.png', '.webp']);
+
+	const WIDTHS = cfg.widths ?? [320, 640, 960];
+
+	const formats = cfg.formats ?? { webp: { enabled: true, quality: 80 } };
+
+	const fallback = cfg.fallback ?? {
+		enabled: true,
+		format: 'jpg',
+		width: 640,
+		quality: 82,
+		mozjpeg: true
+	};
+
+	const CACHE_FILE = cfg.cacheFile ?? '.image-cache.json';
+	const META_FILE = cfg.metaFile ?? './src/lib/image-sizes.json';
+
+	let cache = {};
+	try {
+		cache = JSON.parse(await fs.readFile(CACHE_FILE, 'utf8'));
+	} catch {
+		cache = {};
 	}
 
-	// 1) copy original file unchanged into OUT
-	const originalOut = path.join(OUT, rel);
-	await fs.mkdir(path.dirname(originalOut), { recursive: true });
-	await fs.writeFile(originalOut, buf);
-
-	// 2) prepare sharp pipeline (auto-rotate)
-	const img = sharp(buf).rotate();
-
-	// 3) get intrinsic width/height and store them
-	const metadata = await img.metadata();
-	const width = metadata.width ?? null;
-	const height = metadata.height ?? null;
-
-	// store under the web path, e.g. /uploads/foo/bar.jpg
-	const webPath = '/uploads/' + rel.replace(/\\/g, '/');
-	metaMap[webPath] = { width, height };
-
-	// 4) generate responsive variants
-	for (const widthPx of SIZES) {
-		for (const [ext, cfg] of Object.entries(FORMATS)) {
-			if (!cfg.enabled) continue;
-			if (!cfg.sizes.includes(widthPx)) continue;
-
-			const pipeline = img.clone().resize({ width: widthPx, withoutEnlargement: true });
-
-			const out = outPath(rel, widthPx, ext);
-			const tmp = out + '.tmp';
-
-			await fs.mkdir(path.dirname(out), { recursive: true });
-
-			if (ext === 'webp') {
-				await pipeline.webp(cfg.options).toFile(tmp);
-			} else if (ext === 'avif') {
-				await pipeline.avif(cfg.options).toFile(tmp);
-			} else if (ext === 'jpg' || ext === 'jpeg') {
-				await pipeline.jpeg(cfg.options).toFile(tmp);
-			} else {
-				// unknown format in CONFIG – skip gracefully
-				continue;
-			}
-
-			// atomic rename
-			await fs.rename(tmp, out);
-		}
+	let metaMap = {};
+	try {
+		metaMap = JSON.parse(await fs.readFile(META_FILE, 'utf8'));
+	} catch {
+		metaMap = {};
 	}
 
-	cache[rel] = digest;
-	built++;
-	console.log('built:', rel);
-}
+	let built = 0;
+	let skipped = 0;
+	let warnedAlpha = 0;
 
-async function saveState() {
-	await fs.writeFile(CACHE_FILE, JSON.stringify(cache, null, 2));
-	await fs.writeFile(META_FILE, JSON.stringify(metaMap, null, 2));
-}
-
-async function runOnce() {
-	for await (const file of walk(SRC)) {
-		if (INPUT_EXTS.has(path.extname(file).toLowerCase())) {
-			await processOne(file);
-		}
+	async function saveState() {
+		await fs.writeFile(CACHE_FILE, JSON.stringify(cache, null, 2));
+		await fs.writeFile(META_FILE, JSON.stringify(metaMap, null, 2));
 	}
-	await saveState();
-	console.log(`done — built ${built}, skipped ${skipped}`);
-}
 
-async function runWatch() {
-	console.log(`watching ${SRC} for new or changed images…`);
-
-	// Initial pass, just in case
-	await runOnce();
-	built = 0;
-	skipped = 0;
-
-	fsWatch(SRC, { recursive: true }, async (eventType, filename) => {
-		if (!filename) return;
-
-		const full = path.join(SRC, filename);
-		const ext = path.extname(full).toLowerCase();
+	async function processOne(file) {
+		const rel = path.relative(SRC, file);
+		const ext = path.extname(file).toLowerCase();
 		if (!INPUT_EXTS.has(ext)) return;
 
-		try {
-			// Small debounce: sometimes editors write temp files etc.
-			await new Promise((r) => setTimeout(r, 100));
-			await processOne(full);
-			await saveState();
-		} catch (err) {
-			console.error('Error processing', full, err);
+		const buf = await fs.readFile(file);
+		const digest = sha1(buf);
+
+		if (cache[rel] === digest) {
+			skipped++;
+			return;
 		}
-	});
+
+		const img = sharp(buf).rotate();
+		const meta = await img.metadata();
+
+		// record intrinsic size under original path
+		const webPath = '/uploads/' + normaliseSlashes(rel);
+		metaMap[webPath] = { width: meta.width ?? null, height: meta.height ?? null };
+
+		// webp variants
+		if (formats.webp?.enabled) {
+			const webpQuality = Number(formats.webp.quality ?? 80);
+
+			for (const widthPx of WIDTHS) {
+				const pipeline = img.clone().resize({ width: widthPx, withoutEnlargement: true });
+
+				const out = makeOutPath(OUT, rel, widthPx, 'webp');
+				const tmp = out + '.tmp';
+				await fs.mkdir(path.dirname(out), { recursive: true });
+
+				await pipeline.webp({ quality: webpQuality }).toFile(tmp);
+				await fs.rename(tmp, out);
+			}
+		}
+
+		// single fallback (usually jpg 640)
+		if (fallback?.enabled) {
+			const fbWidth = Number(fallback.width ?? 640);
+			let fbFormat = String(fallback.format ?? 'jpg').toLowerCase();
+
+			// JPEG can't do alpha; switch to png if needed
+			if ((fbFormat === 'jpg' || fbFormat === 'jpeg') && meta.hasAlpha) {
+				fbFormat = 'png';
+				warnedAlpha++;
+			}
+
+			const out = makeOutPath(OUT, rel, fbWidth, fbFormat);
+			const tmp = out + '.tmp';
+			await fs.mkdir(path.dirname(out), { recursive: true });
+
+			const pipeline = img.clone().resize({ width: fbWidth, withoutEnlargement: true });
+
+			if (fbFormat === 'jpg' || fbFormat === 'jpeg') {
+				const q = Number(fallback.quality ?? 82);
+				const mozjpeg = Boolean(fallback.mozjpeg ?? true);
+				await pipeline.jpeg({ quality: q, mozjpeg }).toFile(tmp);
+			} else if (fbFormat === 'png') {
+				await pipeline.png({ compressionLevel: 9 }).toFile(tmp);
+			} else if (fbFormat === 'webp') {
+				const q = Number(fallback.quality ?? 80);
+				await pipeline.webp({ quality: q }).toFile(tmp);
+			}
+
+			if (await fileExists(tmp)) {
+				await fs.rename(tmp, out);
+			}
+		}
+
+		cache[rel] = digest;
+		built++;
+		console.log('built:', rel);
+	}
+
+	for await (const file of walk(SRC)) {
+		await processOne(file);
+	}
+
+	await saveState();
+	console.log(`done — built ${built}, skipped ${skipped}`);
+
+	if (warnedAlpha > 0) {
+		console.log(`note — ${warnedAlpha} image(s) had alpha; wrote PNG fallback instead of JPG.`);
+	}
 }
 
-// ---- CLI mode ----
-if (process.argv.includes('--watch')) {
-	await runWatch();
-} else {
-	await runOnce();
-}
+main().catch((err) => {
+	console.error(err);
+	process.exit(1);
+});

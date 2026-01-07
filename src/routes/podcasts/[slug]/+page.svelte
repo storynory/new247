@@ -1,10 +1,10 @@
 <script lang="ts">
-	
-	import Picture from '$lib/components/PictureWithSizes.svelte';
-	import PortraitPicture from '$lib/components/PortraitPicture.svelte';
+	import Picture from '$lib/components/PictureHero.svelte';
+	import Player from '$lib/components/AudioPlayer.svelte';
 
 	let { data } = $props();
-	let podcast = data.podcast;
+
+	const podcast = $derived(data.podcast);
 </script>
 
 <div class="articleLayout">
@@ -20,24 +20,11 @@
 		</div>
 
 		{#if podcast.thumb}
-			<p>
-				<Picture
-					src={podcast.thumb}
-					alt={`Artwork for ${podcast.title}`}
-					loading="eager"
-					fetchPriority="high"
-					class="episode-art"
-				></Picture>
-			</p>
+			<Picture src={podcast.thumb} alt="Artwork for {podcast.title}" />
 		{/if}
 
 		{#if podcast.mp3}
-			<p>
-				<audio
-					controls
-					src={`https://traffic.libsyn.com/philosophy247/${podcast.mp3}`}
-				></audio>
-			</p>
+			<Player mp3="https://traffic.libsyn.com/philosophy247/{podcast.mp3}" />
 		{/if}
 
 		{#if podcast.bodyHtml}
@@ -45,10 +32,8 @@
 		{/if}
 	</article>
 
-	<section
-class="guests side">
+	<section class="guests side">
 		{#if podcast.people && podcast.people.length > 0}
-
 			<h2 class="txt-center">
 				About the guest{podcast.people.length > 1 ? 's' : ''}
 			</h2>
@@ -56,13 +41,12 @@ class="guests side">
 			{#each podcast.people as person}
 				<aside class="guest small">
 					{#if person.portrait}
-					
-							<PortraitPicture
-								src={person.portrait}
-								alt={person.name}
-								class="guest-portrait"
-								loading="lazy"
-							></PortraitPicture>
+						<Picture
+							src={person.portrait}
+							alt={person.name}
+							class="guest-portrait"
+							variant="sidebar"
+						/>
 					{/if}
 
 					{#if person.bio}
@@ -87,10 +71,6 @@ class="guests side">
 					{/if}
 				</aside>
 			{/each}
-
 		{/if}
 	</section>
 </div>
-
-
-  

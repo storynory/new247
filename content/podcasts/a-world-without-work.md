@@ -13,4 +13,4 @@ bio: John Danaher holds a PhD from University College Cork (Ireland) and is curr
 layout: post.html
 portrait: /assets/img/profiles/danaher.jpg
 ---
-Many economists are now predicting that robots and artificial intelligence will put human beings out of work.  Some people fear that this will be part of a dystopian future.  Philosopher and law lecturer v is much more optimistic; he says we’ll still be able to find meaning in games and in what he calls the Virtual World.
+Many economists are now predicting that robots and artificial intelligence will put human beings out of work. Some people fear that this will be part of a dystopian future. Philosopher and law lecturer v is much more optimistic; he says we’ll still be able to find meaning in games and in what he calls the Virtual World.

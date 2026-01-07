@@ -1,3 +1,21 @@
+// ================= IMAGE TYPES =================
+
+export type ImageIntrinsic = {
+	width: number | null;
+	height: number | null;
+};
+
+export type ImageMetaMap = Record<string, ImageIntrinsic>;
+
+// Audio
+export type AudioSource = {
+	mp3: string;
+	duration?: string;
+	length?: string;
+};
+
+// ================= DOMAIN TYPES =================
+
 export type Person = {
 	slug: string;
 	name: string;
@@ -5,14 +23,13 @@ export type Person = {
 	portrait: string;
 	body: string;
 	bodyHtml: string;
-	// optional – if you want books too:
 	books?: {
 		title: string;
 		author?: string;
+		date?: string | null; // allow null (matches server output)
 		publisher?: string;
 		cover?: string;
-		amazon_uk?: string;
-		amazon_us?: string;
+		amazon?: string;
 		summary?: string;
 	}[];
 };
@@ -29,5 +46,20 @@ export type Podcast = {
 	with: string[];
 	body: string;
 	bodyHtml: string;
-	people?: Person[]; // 👈 new
+	people?: Person[];
 };
+
+// ================= SEARCH TYPES =================
+
+export type PersonSearchItem = Pick<Person, 'slug' | 'name' | 'bio' | 'portrait'> & {
+	type: 'person';
+};
+
+export type PodcastSearchItem = Pick<
+	Podcast,
+	'slug' | 'title' | 'description' | 'thumb' | 'with' | 'date'
+> & {
+	type: 'podcast';
+};
+
+export type SearchResult = PersonSearchItem | PodcastSearchItem;

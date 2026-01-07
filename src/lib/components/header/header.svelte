@@ -1,4 +1,4 @@
-<nav class="txt-right -p bg-white">
+<nav class="txt-right page -p bg-white">
 	<a href="/">Home</a> /
 	<a href="/pages/about/">About / </a>
 	<a href="/search/">Search / </a>

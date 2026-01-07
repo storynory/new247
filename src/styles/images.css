@@ -1,13 +1,14 @@
 img {
 	max-width: 100%;
 	border-radius: 4px;
-    margin: 0.5em auto 1em auto;
+	margin: 0.5em auto 1em auto;
 }
 
-.grid img,
-.img-169 {
-    aspect-ratio: 16 / 9;
-    width: 100%;
-    height: auto;
-    object-fit: cover;   /* crops politely */
+.img-169,
+.img-169 img {
+	aspect-ratio: 16 / 9;
+	width: 100%;
+	height: auto;
+	object-fit: cover; /* crops politely */
 }
+

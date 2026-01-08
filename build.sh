@@ -53,11 +53,8 @@ log "--- Building site ---"
 # -----------------------------
 # Nginx reload (deploy-safe)
 # -----------------------------
-log "--- Testing nginx config ---"
-sudo "$NGINX" -t
-
 log "--- Reloading nginx ---"
-sudo "$SYSTEMCTL" reload nginx
+sudo /usr/local/sbin/reload-nginx-safe.sh
 
 log "=== [philosophy247] Build complete ==="
 

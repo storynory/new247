@@ -17,7 +17,6 @@ echo "→ Testing nginx config"
 sudo /usr/sbin/nginx -t
 
 echo "→ Reloading nginx"
-sudo systemctl reload nginx
-
+sudo /bin/systemctl reload nginx
 echo "=== Build complete ==="
 

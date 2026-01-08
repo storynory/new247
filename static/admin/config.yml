@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
 backend:
   name: github
-  repo: storynory/247-content
+  repo: storynory/new247
   branch: main
 
 logo:

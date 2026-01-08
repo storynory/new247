@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
 backend:
   name: github
-  repo: storynory/new247
+  repo: storynory/marni-content
   branch: main
-  auth_endpoint: https://sveltia-cms-auth.hugh-6ba.workers.dev
+  base_url: https://sveltia-cms-auth.hugh-6ba.workers.dev
 
 logo:
   src: http://static.libsyn.com/p/assets/d/3/3/f/d33f2d47715b7bbe/itunes.jpg

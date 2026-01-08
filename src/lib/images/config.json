@@ -1,5 +1,5 @@
 {
-	"srcDir": "./uploads",
+	"srcDir": "./content/uploads",
 	"outDir": "./static/uploads",
 	"inputExts": [".jpg", ".jpeg", ".png", ".webp"],
 	"widths": [320, 640, 960],

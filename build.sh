@@ -1,22 +1,63 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-set -e
+# -----------------------------
+# Config (explicit, no PATH reliance)
+# -----------------------------
+BASE="/var/www/247"
 
-echo "=== Philosophy247 build starting ==="
+NODE="/home/bertie/.nvm/versions/node/v24.11.0/bin/node"
+NPM="/home/bertie/.nvm/versions/node/v24.11.0/bin/npm"
 
-cd /var/www/247
+NGINX="/usr/sbin/nginx"
+SYSTEMCTL="/bin/systemctl"
 
-git fetch origin
-git pull origin main
+# -----------------------------
+# Logging helper
+# -----------------------------
+log() {
+  printf '[%s] %s\n' "$(date -Iseconds)" "$*"
+}
 
-npm ci
-npm run images
-npm run build
+log "=== [philosophy247] Build start ==="
+log "Using node: $($NODE -v)"
+log "Using npm:  $($NPM -v)"
 
-echo "→ Testing nginx config"
-sudo /usr/sbin/nginx -t
+cd "$BASE"
 
-echo "→ Reloading nginx"
-sudo /bin/systemctl reload nginx
-echo "=== Build complete ==="
+# -----------------------------
+# Sync repo
+# -----------------------------
+log "--- Updating repository ---"
+git fetch origin main
+git reset --hard origin/main
+
+# -----------------------------
+# Dependencies
+# -----------------------------
+log "--- Installing dependencies (npm ci) ---"
+"$NPM" ci
+
+# -----------------------------
+# Images
+# -----------------------------
+log "--- Processing images ---"
+"$NODE" scripts/process-images.mjs
+
+# -----------------------------
+# Build
+# -----------------------------
+log "--- Building site ---"
+"$NPM" run build
+
+# -----------------------------
+# Nginx reload (deploy-safe)
+# -----------------------------
+log "--- Testing nginx config ---"
+sudo "$NGINX" -t
+
+log "--- Reloading nginx ---"
+sudo "$SYSTEMCTL" reload nginx
+
+log "=== [philosophy247] Build complete ==="
 

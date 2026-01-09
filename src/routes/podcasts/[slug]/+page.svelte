@@ -7,6 +7,10 @@
 	const podcast = $derived(data.podcast);
 </script>
 
+<svelte:head>
+	<title>{podcast.title}</title>
+	<meta name="description" content={podcast.description} />
+</svelte:head>
 <div class="articleLayout">
 	<article>
 		<div class="txt-center-mob">

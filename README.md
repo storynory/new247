@@ -69,7 +69,7 @@ B) Image flow (uploads → build script → static assets → Picture component)
           ▼
 ┌──────────────────────────────────────────────────────────┐
 │ Original uploads                                            │
-│ Location: /uploads/                                        │
+│ Location: content/uploads/                                        │
 │ Purpose: source material only                               │
 └──────────────────────────────────────────────────────────┘
           │
@@ -101,7 +101,7 @@ B) Image flow (uploads → build script → static assets → Picture component)
 │  /uploads/foo.640.jpg   (fallback)                          │
 └──────────────────────────────────────────────────────────┘
           │
-          │ 4) UI uses one component for consistent markup
+          │ 4) UI uses individual picture components for various use cases
           ▼
 ┌──────────────────────────────────────────────────────────┐
 │ Picture component                                           │
@@ -124,7 +124,7 @@ Images are processed at build time from /uploads to /static/uploads.
 Key locations (cheat sheet)
 /static/admin/                  Sveltia CMS UI + config
 /content/                       Markdown content (podcasts/people/pages)
-/uploads/                       Original (often large) images (source only)
+content/uploads/                       Original (often large) images (source only)
 
 /scripts/process-images.mjs      Build-time image processing
 /src/lib/images/config.json      Image widths, fallback, default sizes (source of truth)

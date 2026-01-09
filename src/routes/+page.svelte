@@ -11,6 +11,13 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Philosophy247</title>
+	<meta
+		name="description"
+		content="David Edmonds interviews leading thinkers,audio podcast and website"
+	/>
+</svelte:head>
 <p class="txt-center small">
 	<b class="brand-font">
 		Leading thinkers interviewed by David Edmonds

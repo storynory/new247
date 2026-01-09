@@ -6,7 +6,11 @@
 </script>
 
 <h1>Podcasts</h1>
+<svelte:head>
+	<title>Interviews List</title>
 
+	<meta name="description" content="List of interviews for Philosophy 247 Podcast" />
+</svelte:head>
 <ul>
 	{#each sorted as podcast}
 		<li class="-p bg-gray -m-y">

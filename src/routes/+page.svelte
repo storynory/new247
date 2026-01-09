@@ -1,9 +1,12 @@
 <script lang="ts">
 	import Picture from '$lib/components/PictureGrid.svelte';
 
-	// front page
 	let { data } = $props();
-	let podcasts = $derived(data.podcasts);
+
+	let podcasts = $derived(
+		[...data.podcasts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+	);
+
 	let visible = $state(12);
 
 	function loadMore() {

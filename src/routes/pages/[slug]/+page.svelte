@@ -4,9 +4,12 @@
 	let data = $props();
 	let pg = data.data.page;
 	const html = marked.parse(pg.body);
-	console.log(pg);
 </script>
 
+<svelte:head>
+	<title>{pg.title}</title>
+	<meta name="description" content={pg.description} />
+</svelte:head>
 <div class="page">
 	<article>
 		<h1>{pg.title}</h1>

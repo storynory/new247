@@ -83,6 +83,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Search Philosophy 247</title>
+	<meta name="description" content="Search Podcasts on ethics and issues of our times" />
+</svelte:head>
 <svelte:window onkeydown={onKeydown} />
 {#if errorMessage}
 	<p>{errorMessage}</p>

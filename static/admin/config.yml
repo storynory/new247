@@ -2,7 +2,7 @@
 backend:
   name: github
   repo: storynory/new247
-  branch: main
+  branch: content
   base_url: https://sveltia-cms-auth.hugh-6ba.workers.dev
 
 logo:

@@ -2,7 +2,7 @@
 backend:
   name: github
   repo: storynory/247-content
-  branch: main
+  branch: content
 
 logo:
   src: http://static.libsyn.com/p/assets/d/3/3/f/d33f2d47715b7bbe/itunes.jpg

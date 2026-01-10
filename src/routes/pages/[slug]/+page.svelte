@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Picture from '$lib/components/Picture.svelte';
+	import Picture from '$lib/components/PictureHero.svelte';
 	import { marked } from 'marked';
 	let data = $props();
 	let pg = data.data.page;

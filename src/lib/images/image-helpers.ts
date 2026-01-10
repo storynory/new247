@@ -42,10 +42,9 @@ export function fallbackSrc(src: string) {
 
 	const { width: cfgWidth, format } = IMAGE_CONFIG.fallback;
 
-	// Prefer the largest generated size for this image (fixes tiny images)
-	const metaWidth = meta?.sizes && meta.sizes.length ? meta.sizes[meta.sizes.length - 1] : null;
-
-	const width = metaWidth ?? cfgWidth;
+	const intrinsic = meta?.width;
+	const width =
+		typeof intrinsic === 'number' && intrinsic > 0 ? Math.min(cfgWidth, intrinsic) : cfgWidth;
 
 	return `${base}.${width}.${format}`;
 }

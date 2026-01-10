@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import { marked } from 'marked';
+import { IMAGE_CONFIG } from '$lib/images/config';
 
 // Keep Marked synchronous
 marked.setOptions({ async: false });
@@ -46,15 +47,70 @@ export function listSlugs(collection: string): string[] {
 	});
 }
 
-export function toHtml(markdown: string): string {
-	return markdown ? (marked.parse(markdown) as string) : '';
+/**
+ * Encode each URL path segment safely.
+ * - Safe to run on already-encoded strings (prevents %2520)
+ * - Preserves slashes
+ */
+export function encodeUrlPath(value: unknown): string {
+	if (typeof value !== 'string') return '';
+	const s = value.trim();
+	if (!s) return '';
+
+	return s
+		.split('/')
+		.map((seg) => {
+			try {
+				return encodeURIComponent(decodeURIComponent(seg));
+			} catch {
+				return encodeURIComponent(seg);
+			}
+		})
+		.join('/');
 }
 
-// ---- SAFETY HELPER: URL-encode spaces in media paths ----
-export function encodePath(value: unknown): string {
-	if (typeof value !== 'string') return '';
-	return value.trim().replace(/ /g, '%20');
+/**
+ * Convert any /uploads/... image URL to the *generated fallback* variant.
+ * This prevents broken links like *.960.jpg or *.320.jpg after the pipeline change.
+ */
+export function toUploadFallback(src: string): string {
+	if (!src.startsWith('/uploads/')) return src;
+
+	// encode only the part after /uploads/
+	const rest = src.slice('/uploads/'.length);
+	const encoded = '/uploads/' + encodeUrlPath(rest);
+
+	// strip ".{width}.{ext}" OR ".{ext}"
+	const base = encoded.replace(/(\.\d+)?\.[^.\/]+$/, '');
+
+	const { width, format } = IMAGE_CONFIG.fallback;
+	return `${base}.${width}.${format}`;
 }
+
+/**
+ * Rewrite <img src="/uploads/..."> in generated HTML to use fallback outputs.
+ */
+export function normaliseHtmlImages(html: string): string {
+	if (!html) return html;
+
+	return html.replace(/<img([^>]*?)\s+src="([^"]+)"([^>]*?)>/g, (_m, a, src, b) => {
+		// only rewrite uploads; leave external images alone
+		const fixed = src.startsWith('/uploads/') ? toUploadFallback(src) : src;
+		return `<img${a} src="${fixed}"${b}>`;
+	});
+}
+
+export function toHtml(markdown: string): string {
+	if (!markdown) return '';
+	const html = marked.parse(markdown) as string;
+	return normaliseHtmlImages(html);
+}
+
+/**
+ * Backwards-compatible name (if you already call encodePath elsewhere).
+ * You can remove this once you've updated call sites.
+ */
+export const encodePath = encodeUrlPath;
 
 /**
  * Small convenience to avoid repeating `.find(...)` everywhere.

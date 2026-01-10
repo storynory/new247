@@ -13,6 +13,6 @@ collection: podcasts
 layout: post.html
 portrait: /assets/img/profiles/bortolotti.jpg
 ---
-So why are we just crazy when it comes to love?  Why do we believe so fervently that the Happy Hollywood Ending will come true for us, despite all the evidence to the contrary? Does romance makes us irrationally optimistic about our chances of happiness?  And if so, is that a good or a bad thing?
+Why are we just crazy when it comes to love?  Why do we believe so fervently that the Happy Hollywood Ending will come true for us, despite all the evidence to the contrary? Does romance makes us irrationally optimistic about our chances of happiness?  And if so, is that a good or a bad thing?
 
 David Edmonds speaks to Professor Lisa Bortolotti of the University of Birmingham.

@@ -13,4 +13,4 @@ bio: Ole Martin Moen is a philosopher at University of Oslo who works on how to 
 layout: post.html
 portrait: /assets/img/profiles/moen.jpg
 ---
-Philosophy 247 always takes you on an intellectual trip.  If you want a trip which is more directly chemically induced, you can take a psychedelic  drug – alongside over 30 million other people in the United States.  Psychedelic drugs are illegal.  That in and of itself might be a good reason not to dabble in them.  And there are other risks attached.  But Ole-Martin Moen wonders whether there might also be benefit.
+Philosophy 247 always takes you on an intellectual trip.  If you want a trip which is more directly chemically induced, you can take a psychedelic  drug – alongside over 30 million other people in the United States.  Psychedelic drugs are illegal.  That in and of itself might be a good reason not to dabble in them.  And there are other risks attached.  But Ole-Martin Moen wonders whether there might also be benefits.

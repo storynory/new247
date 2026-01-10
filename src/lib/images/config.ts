@@ -1,16 +1,11 @@
-// $lib/images/config.ts
-export const IMAGE_CONFIG = {
-	widths: [320, 640, 960],
+// typescript helper based on config.json as source of truth
+//
+import raw from './config.json';
 
-	// modern formats
-	formats: ['webp'] as const,
-
-	// single, capped fallback
-	fallback: {
-		format: 'jpg' as const,
-		width: 640,
-		quality: 82
-	},
-
-	defaultSizes: '(min-width: 1200px) 25vw, (min-width: 768px) 33vw, 100vw'
+export type ImageConfig = {
+	widths: number[];
+	fallback: { enabled: boolean; width: number; format: string };
+	defaultSizes?: string;
 };
+
+export const IMAGE_CONFIG = raw as ImageConfig;

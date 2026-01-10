@@ -1,3 +1,4 @@
+// /scripts/process-images.mjs
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -42,6 +43,20 @@ function makeOutPath(outDir, rel, width, ext) {
 	return path.join(outDir, `${name}.${width}.${ext}`);
 }
 
+/**
+ * Choose the widths we will *name* and *record* for this image.
+ * If the image is smaller than the smallest configured width, we fall back to the intrinsic width
+ * so we still generate one sensible variant (and filenames match reality).
+ */
+function pickGeneratedSizes(intrinsicWidth, widths) {
+	if (typeof intrinsicWidth !== 'number' || intrinsicWidth <= 0) return widths;
+
+	const ok = widths.filter((w) => w <= intrinsicWidth);
+	if (ok.length === 0) return [intrinsicWidth];
+
+	return ok;
+}
+
 async function fileExists(p) {
 	try {
 		await fs.stat(p);
@@ -59,7 +74,6 @@ async function main() {
 	const INPUT_EXTS = new Set(cfg.inputExts ?? ['.jpg', '.jpeg', '.png', '.webp']);
 
 	const WIDTHS = cfg.widths ?? [320, 640, 960];
-
 	const formats = cfg.formats ?? { webp: { enabled: true, quality: 80 } };
 
 	const fallback = cfg.fallback ?? {
@@ -113,21 +127,50 @@ async function main() {
 		const meta = await img.metadata();
 
 		// record intrinsic size under original path
-		const webPath = '/uploads/' + normaliseSlashes(rel);
-		metaMap[webPath] = { width: meta.width ?? null, height: meta.height ?? null };
+		const webPath =
+			'/uploads/' + normaliseSlashes(rel).split('/').map(encodeURIComponent).join('/');
 
-		// webp variants
-		if (formats.webp?.enabled) {
-			const webpQuality = Number(formats.webp.quality ?? 80);
+		const intrinsicW = meta.width ?? null;
+		const intrinsicH = meta.height ?? null;
 
-			for (const widthPx of WIDTHS) {
-				const pipeline = img.clone().resize({ width: widthPx, withoutEnlargement: true });
+		// full manifest entry for downstream Picture components
+		metaMap[webPath] = {
+			width: intrinsicW,
+			height: intrinsicH,
+			sizes: pickGeneratedSizes(intrinsicW, WIDTHS),
+			formats: []
+		};
 
-				const out = makeOutPath(OUT, rel, widthPx, 'webp');
+		// variants for enabled formats (webp/avif)
+		for (const [fmt, opts] of Object.entries(formats)) {
+			if (!opts?.enabled) continue;
+
+			const q = Number(opts.quality ?? 80);
+
+			// record that we generated this format
+			metaMap[webPath].formats.push(fmt);
+
+			for (const widthPx of metaMap[webPath].sizes) {
+				// ensure filenames reflect the actual output width (no ".320" files that are really 220px)
+				const outWidth = typeof intrinsicW === 'number' ? Math.min(widthPx, intrinsicW) : widthPx;
+
+				const pipeline = img.clone().resize({ width: outWidth, withoutEnlargement: true });
+
+				// decide encoder first; ignore unknown formats
+				let write;
+				if (fmt === 'webp') {
+					write = (p) => p.webp({ quality: q });
+				} else if (fmt === 'avif') {
+					write = (p) => p.avif({ quality: q });
+				} else {
+					continue;
+				}
+
+				const out = makeOutPath(OUT, rel, outWidth, fmt);
 				const tmp = out + '.tmp';
 				await fs.mkdir(path.dirname(out), { recursive: true });
 
-				await pipeline.webp({ quality: webpQuality }).toFile(tmp);
+				await write(pipeline).toFile(tmp);
 				await fs.rename(tmp, out);
 			}
 		}
@@ -143,11 +186,14 @@ async function main() {
 				warnedAlpha++;
 			}
 
-			const out = makeOutPath(OUT, rel, fbWidth, fbFormat);
+			// ensure fallback filename reflects actual output width
+			const outFbWidth = typeof intrinsicW === 'number' ? Math.min(fbWidth, intrinsicW) : fbWidth;
+
+			const out = makeOutPath(OUT, rel, outFbWidth, fbFormat);
 			const tmp = out + '.tmp';
 			await fs.mkdir(path.dirname(out), { recursive: true });
 
-			const pipeline = img.clone().resize({ width: fbWidth, withoutEnlargement: true });
+			const pipeline = img.clone().resize({ width: outFbWidth, withoutEnlargement: true });
 
 			if (fbFormat === 'jpg' || fbFormat === 'jpeg') {
 				const q = Number(fallback.quality ?? 82);

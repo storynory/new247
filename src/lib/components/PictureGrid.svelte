@@ -25,6 +25,16 @@
 		(min-width: 768px) 50vw,
 		320px
 	"
+		type="image/avif"
+	/>
+
+	<source
+		srcset={webpSrcset(src)}
+		sizes="
+		(min-width: 1200px) 33vw,
+		(min-width: 768px) 50vw,
+		320px
+	"
 		type="image/webp"
 	/>
 

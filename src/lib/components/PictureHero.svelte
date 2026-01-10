@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { webpSrcset, fallbackSrc, getMeta } from '$lib/images/image-helpers';
+	import { formatSrcset, webpSrcset, fallbackSrc, getMeta } from '$lib/images/image-helpers';
 
 	let { src, alt = '' } = $props<{ src: string; alt?: string }>();
 
@@ -7,6 +7,14 @@
 </script>
 
 <picture>
+	<!-- AVIF first (used only if generated + supported) -->
+	<source
+		srcset={formatSrcset(src, 'avif')}
+		sizes="(min-width: 1200px) 900px, 85vw"
+		type="image/avif"
+	/>
+
+	<!-- WebP -->
 	<source srcset={webpSrcset(src)} sizes="(min-width: 1200px) 900px, 85vw" type="image/webp" />
 
 	<img

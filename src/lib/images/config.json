@@ -5,6 +5,7 @@
 	"widths": [320, 640, 960],
 
 	"formats": {
+		"avif": { "enabled": false, "quality": 50 },
 		"webp": { "enabled": true, "quality": 80 }
 	},
 

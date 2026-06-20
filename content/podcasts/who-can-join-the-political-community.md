@@ -14,4 +14,6 @@ layout: post.html
 portrait: /assets/img/profiles/seyla.jpg
 ---
 
-People who live in democratic countries won’t all have the same rights.  Children can’t vote, for example.  Some long-term residents, who aren’t citizens, might be able to vote in local but not national elections.  Illegal immigrants can’t vote at all.  Then there are full citizens who live abroad - they might have some, but not necessarily the full set of political rights.  David Edmonds speaks to Seyla Benhabib of Yale University about the nature of political membership.
+People who live in democratic countries won’t all have the same rights.  Children can’t vote, for example.  
+
+Some long-term residents, who aren’t citizens, might be able to vote in local but not national elections.  Illegal immigrants can’t vote at all.  Then there are full citizens who live abroad - they might have some, but not necessarily the full set of political rights.  David Edmonds speaks to Seyla Benhabib of Yale University about the nature of political membership.

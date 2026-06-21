@@ -2,6 +2,7 @@
 title: About Philosophy 247
 featuredImage: /uploads/chessboard.jpg
 ---
+
 Philosophy 24/7 brings you concise interviews with leading philosophers about pressing moral, political and social questions.
 
 The podcast is hosted by David Edmonds, a multi-award-winning BBC journalist, and one half of the pair behind Philosophy Bites.
@@ -17,7 +18,5 @@ You can follow David on Twitter at @DavidEdmonds100 or email him at [**david.edm
 We are extremely grateful to the Institute of Philosophy in London and Oxford’s Uehiro Centre for Practical Ethics for allowing us the use of office space to record interviews.
 
 **Credits**
-The Philosophy 247 website and podcast are maintained by **Hugh Fraser**, who also produces children’s audio and podcast stories for Storynory.
-
 Chess photograph by **Mark Savage**.
 Photo credit: Mark Savage (chess portrait).
